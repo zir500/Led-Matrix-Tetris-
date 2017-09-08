@@ -1,3 +1,9 @@
+#ifndef TETRIS_H
+#define TETRIS_H
+
+#include <array>
+#include <iostream>
+#include <vector>
 
 namespace tetris_engine{
 // The index of the active cells for each orientation of each shape of tetrimino.
@@ -35,16 +41,35 @@ namespace tetris_engine{
   TETRIMINO_DEF(L, ST({2, 4, 5, 6}),  ST({1, 5, 9, 10}), ST({4, 5, 6, 8}),  ST({0, 1, 5, 9}))
 
 #define TETRIMINO_DEF(identifier, state0, state1, state2, state3) identifier
-enum TetriminoShapes {TETRIMINOS_DEF};
+enum TetriminoShapes {TETRIMINOS_DEF, EMPTY};
 #undef TETRIMINO_DEF 
 
 #define TETRIMINO_DEF(identifier, state0, state1, state2, state3) \
-    {state0, state1, state2, state3}
-static const int kTetriminoStates[7][4][4] = {TETRIMINOS_DEF};
+  {{{state0}, {state1}, {state2}, {state3}}}
+static const std::array<std::array<std::array<int, 4>, 4>, 7> 
+  kTetriminoStates = {{TETRIMINOS_DEF}};
 #undef TETRIMINO_DEF
 #undef TETRIMINOS_DEF
 #undef S
 
-//Pointer to the tetrimino which occupies the space at that index. [down][left]
-enum TetriminoShapes gameboard[10][20]; 
+const int kGameboardWidth = 10;
+const int kGameboardHeight = 20;
+
+// Game State variables:
+std::array<std::array<TetriminoShapes, kGameboardWidth>, kGameboardHeight> gameboard;
+TetriminoShapes active_tetrimino_type;
+std::array<int, 2> active_tetrimino_position;
+int active_tetrimino_orientation;
+
+
+void Tick ();
+void SetCells(TetriminoShapes shape, std::array<int, 2> position,
+    int orientation, TetriminoShapes new_shape);
+bool IsObstructed(TetriminoShapes type, std::array<int, 2>position, int orientation);
+std::array<std::array<int, 2>, 4> FindTetriminoPosition(TetriminoShapes shape, 
+    std::array<int, 2> pos, int orientation);
+TetriminoShapes GetShapeAt(std::array<int, 2> position);
 }
+
+#endif //TETRIS_H
+
