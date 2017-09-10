@@ -1,7 +1,7 @@
 CLeftXX=g++
 LINK.o=$(CXX) $(LDFLAGS) $(TARGET_ARCH)
 
-CXXFLAGS=-Irpi-rgb-led-matrix/include/ -std=c++11 
+CXXFLAGS=-g -Irpi-rgb-led-matrix/include/ -std=c++11 
 LDFLAGS=-Lrpi-rgb-led-matrix/lib/
 LDLIBS=-lrt -lm -lpthread -lrgbmatrix
 
