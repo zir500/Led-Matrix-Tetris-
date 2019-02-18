@@ -20,6 +20,38 @@ bool tetris_engine::MoveActiveDown(){
   Tetrimino next_tetrimino = active_tetrimino;
   next_tetrimino.position.y++;
  
+  return MoveTetrimino(active_tetrimino, next_tetrimino);
+}
+
+bool tetris_engine::MoveActiveLeft() {
+  Tetrimino next_tetrimino = active_tetrimino;
+  next_tetrimino.position.x--;
+ 
+  return MoveTetrimino(active_tetrimino, next_tetrimino);
+}
+
+bool tetris_engine::MoveActiveRight() {
+  Tetrimino next_tetrimino = active_tetrimino;
+  next_tetrimino.position.x++;
+ 
+  return MoveTetrimino(active_tetrimino, next_tetrimino);
+}
+
+bool tetris_engine::RotateClockwise() {
+  Tetrimino next_tetrimino = active_tetrimino;
+  next_tetrimino.orientation = (active_tetrimino.orientation+1)%4;
+ 
+  return MoveTetrimino(active_tetrimino, next_tetrimino);
+}
+
+bool tetris_engine::RotateAntiClockwise() {
+  Tetrimino next_tetrimino = active_tetrimino;
+  next_tetrimino.orientation = abs((active_tetrimino.orientation-1)%4);
+ 
+  return MoveTetrimino(active_tetrimino, next_tetrimino);
+}
+
+bool tetris_engine::MoveTetrimino(Tetrimino &active_tetrimino, Tetrimino &next_tetrimino) {
   SetCells(active_tetrimino,  TetriminoShapes::EMPTY);
   if (IsObstructed(next_tetrimino)) {
     SetCells(active_tetrimino,  active_tetrimino.type);
@@ -67,7 +99,7 @@ std::array<Coord, 4> tetris_engine::FindTetriminoPosition(Tetrimino tetrimino){
 }
 
 TetriminoShapes tetris_engine::GetShapeAt(Coord position){
-  if (position.x > kGameboardWidth || position.x < 0){
+  if (position.x >= kGameboardWidth || position.x < 0){
     return TetriminoShapes::OUT_OF_BOUNDS;
   } else if (position.y > kGameboardHeight){
     return TetriminoShapes::OUT_OF_BOUNDS;

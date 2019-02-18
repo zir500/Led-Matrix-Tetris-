@@ -31,7 +31,7 @@ namespace tetris_engine {
     TETRIMINO_DEF(I, PROT({8, 9, 10, 11}),PROT({1, 5, 9, 13}), PROT({4, 5, 6, 7}),  PROT({2, 6, 10, 14}), PROT({85, 22, 255})), \
     TETRIMINO_DEF(O, PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}),  PROT({255, 255, 0})), \
     TETRIMINO_DEF(T, PROT({1, 4, 5, 6}),  PROT({1, 5, 6, 9}),  PROT({4, 5, 6, 9}),  PROT({1, 4, 5, 9}),   PROT({140, 0, 255})), \
-    TETRIMINO_DEF(S, PROT({1, 2, 4, 5}),  PROT({1, 5, 6, 10}), PROT({5, 6, 8, 9}),  PROT({0, 4, 5, 9}),   PROT({90, 214, 80})), \
+    TETRIMINO_DEF(S, PROT({1, 2, 4, 5}),  PROT({1, 5, 6, 10}), PROT({5, 6, 8, 9}),  PROT({0, 4, 5, 9}),   PROT({0, 160, 255})), \
     TETRIMINO_DEF(Z, PROT({0, 1, 5, 6}),  PROT({2, 5, 6, 9}),  PROT({4, 5, 9, 10}), PROT({1, 4, 5, 8}),   PROT({255, 0, 0})), \
     TETRIMINO_DEF(J, PROT({0, 4, 5, 6}),  PROT({1, 2, 5, 9}),  PROT({4, 5, 6, 10}), PROT({1, 5, 8, 9}),   PROT({0, 0, 255})), \
     TETRIMINO_DEF(L, PROT({2, 4, 5, 6}),  PROT({1, 5, 9, 10}), PROT({4, 5, 6, 8}),  PROT({0, 1, 5, 9}),   PROT({255, 128, 0}))
@@ -93,6 +93,13 @@ namespace tetris_engine {
   // Returns true if the active tetrimino has been moved down.
   // Returns false if the active tetrimino has not been moved down due to an obstruction.
   bool MoveActiveDown ();
+  bool MoveActiveLeft ();
+  bool MoveActiveRight ();
+  bool RotateClockwise();
+  bool RotateAntiClockwise();
+
+  // Tries to move a tetrimino to a new position.  Fails if the move is obstructed.
+  bool MoveTetrimino(Tetrimino &active_tetrimino, Tetrimino &next_tetrimino) ;
 
   // Sets the cells occupied by the specified tetromino to the specified type.
   void SetCells (Tetrimino tetrimino, TetriminoShapes new_shape);
@@ -119,6 +126,8 @@ namespace tetris_engine {
   // Generates the first 'kTettriminoQueueSize' tetriminos for the queue and inserts them.
   void InitializeTetriminoQueue();
 
+  // Runs the tetris game, moves tiles down, generates new tetrminio's when needed etc...
+  void TetrisThread();
 
 }
 

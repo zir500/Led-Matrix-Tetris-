@@ -1,8 +1,12 @@
 #include "display.h"
 
 #include <thread>
+#include "readerwriterqueue/readerwriterqueue.h"
 
 using namespace display;
+
+moodycamel::ReaderWriterQueue<char> inputQueue(10);
+bool stopInputHandler = false;
 
 static void InterruptHandler(int signo){
   interrupted = true;
@@ -42,10 +46,20 @@ display::TerminalSettingsModifier::~TerminalSettingsModifier(){
 }
 
 
+void InputHandlerThread() {
+  while (!stopInputHandler) {
+    char key = getchar();
+    inputQueue.try_enqueue(key);
+    std::cout << key << std::endl;
+  }
+}
+
 void GameLoop(rgb_matrix::RGBMatrix &matrix) {
   const std::chrono::steady_clock::duration interval = std::chrono::seconds(1);
   std::chrono::steady_clock::time_point lastTickTime = std::chrono::steady_clock::now();
   bool exitLoop = false;
+
+  std::thread inputThread(InputHandlerThread);
 
   tetris_engine::ClearGameboard();
   tetris_engine::InitializeTetriminoQueue();
@@ -61,15 +75,38 @@ void GameLoop(rgb_matrix::RGBMatrix &matrix) {
       lastTickTime = currentTickTime;
     }
 
-    // HANDLE INPUTS
-    char key=getchar();// this is a blocking function :(
-    if (key == 'q') {
-      exitLoop = true; 
+    // Handle Inputs
+    char key = '\0';
+    while (inputQueue.try_dequeue(key)) {
+      switch (key) { 
+        case 'q':
+          exitLoop = true; 
+          break;
+
+        case 's':
+          tetris_engine::MoveActiveDown();
+          break;
+
+        case 'a':
+          tetris_engine::MoveActiveLeft();
+          break;
+
+        case 'd':
+          tetris_engine::MoveActiveRight();
+          break;
+
+        case 'w':
+          tetris_engine::RotateClockwise();
+          break;
+      }
     }
-    std::cin.clear();
     
     DisplayGameboard(&matrix, tetris_engine::gameboard);
   } 
+
+  stopInputHandler = true; 
+  ungetc('q', STDIN_FILENO); //Bodge to allow InputHanlder thread to exit (getchar blocks)
+  inputThread.join();
 }
 
 int main(){
