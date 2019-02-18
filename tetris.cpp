@@ -6,6 +6,7 @@ using namespace tetris_engine;
 GameBoard tetris_engine::gameboard; 
 Tetrimino tetris_engine::active_tetrimino;
 std::queue<Tetrimino> tetris_engine::tetrimino_queue;
+std::atomic_bool tetris_engine::stop_engine;
 
 void tetris_engine::ClearGameboard(){
   for (auto& row : gameboard){
@@ -30,7 +31,6 @@ bool tetris_engine::MoveActiveDown(){
   }
 }
 
-
 void tetris_engine::SetCells(Tetrimino tetrimino, TetriminoShapes new_shape){
   std::array<Coord, 4> tetrimino_cell_positions = FindTetriminoPosition(tetrimino);
 
@@ -43,7 +43,6 @@ void tetris_engine::SetCells(Tetrimino tetrimino, TetriminoShapes new_shape){
   }
 }
 
-
 bool tetris_engine::IsObstructed(Tetrimino tetrimino){
   std::array<Coord, 4> tetrimino_cell_positions = FindTetriminoPosition(tetrimino);
 
@@ -54,7 +53,6 @@ bool tetris_engine::IsObstructed(Tetrimino tetrimino){
   }
   return false;
 }
-
 
 std::array<Coord, 4> tetris_engine::FindTetriminoPosition(Tetrimino tetrimino){
   std::array<int, 4> internal_positions = 
@@ -67,8 +65,6 @@ std::array<Coord, 4> tetris_engine::FindTetriminoPosition(Tetrimino tetrimino){
   } 
   return gameboard_positions;
 }
-
-
 
 TetriminoShapes tetris_engine::GetShapeAt(Coord position){
   if (position.x > kGameboardWidth || position.x < 0){

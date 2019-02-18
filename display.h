@@ -4,6 +4,9 @@
 #include <memory>
 #include <signal.h>
 #include <iostream>
+#include <atomic>
+
+#include <termios.h>
 
 #include "graphics.h"
 #include "led-matrix.h"
@@ -27,12 +30,25 @@ const int kNumberOfRows = 32;
 
 const int kBrightness = 50;
 
+// Delay between each redraw of the matrix
+const int kDisplayUpdateIntervalMillis = 1000;
+
 // Indicates that an interrupt signal has been received (SIGINT or SIGTERM).
 volatile bool interrupted = false;
 
 void DisplayGameboard(rgb_matrix::RGBMatrix* matrix, const GameBoard gameboarda);
 
 void InitializeTetriminoQueue();
+
+// RAII class encapsulating the changes that need to be made to the terminal 
+// in order for the game's control system to work.  
+class TerminalSettingsModifier{
+  termios original_tio;
+  termios game_tio;
+  public:
+    TerminalSettingsModifier();
+    ~TerminalSettingsModifier();
+};
 }
 
 #endif //DISPLAY_H

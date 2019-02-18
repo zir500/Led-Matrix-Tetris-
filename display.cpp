@@ -1,5 +1,7 @@
 #include "display.h"
 
+#include <thread>
+
 using namespace display;
 
 static void InterruptHandler(int signo){
@@ -16,6 +18,7 @@ void display::DisplayGameboard(rgb_matrix::RGBMatrix* matrix, const GameBoard ga
   }
 }
 
+//DEBUG
 void TerminalGameboard(){
   for (auto& row : tetris_engine::gameboard){
     for (auto cell : row){
@@ -26,6 +29,48 @@ void TerminalGameboard(){
   std::cout << std::endl;
 }
 
+display::TerminalSettingsModifier::TerminalSettingsModifier(){
+  tcgetattr(STDIN_FILENO, &(this->original_tio));
+  this->game_tio = this->original_tio;
+  this->game_tio.c_lflag &= (~ICANON & ~ECHO);// Disable Canonical mode
+  tcsetattr(STDIN_FILENO, TCSANOW, &(this->game_tio));
+}
+
+
+display::TerminalSettingsModifier::~TerminalSettingsModifier(){
+  tcsetattr(STDIN_FILENO, TCSANOW, &this->original_tio);
+}
+
+
+void GameLoop(rgb_matrix::RGBMatrix &matrix) {
+  const std::chrono::steady_clock::duration interval = std::chrono::seconds(1);
+  std::chrono::steady_clock::time_point lastTickTime = std::chrono::steady_clock::now();
+  bool exitLoop = false;
+
+  tetris_engine::ClearGameboard();
+  tetris_engine::InitializeTetriminoQueue();
+  tetris_engine::NextTetrimino();
+  
+  while (!exitLoop) {
+    std::chrono::steady_clock::time_point currentTickTime = std::chrono::steady_clock::now();
+    
+    if (currentTickTime - lastTickTime >= interval) {
+      if (!tetris_engine::MoveActiveDown()){
+        tetris_engine::NextTetrimino();
+      }
+      lastTickTime = currentTickTime;
+    }
+
+    // HANDLE INPUTS
+    char key=getchar();// this is a blocking function :(
+    if (key == 'q') {
+      exitLoop = true; 
+    }
+    std::cin.clear();
+    
+    DisplayGameboard(&matrix, tetris_engine::gameboard);
+  } 
+}
 
 int main(){
   // Set some defaults
@@ -45,24 +90,12 @@ int main(){
   matrix->SetBrightness(kBrightness);
   matrix->ApplyStaticTransformer(rgb_matrix::UArrangementTransformer());
 
-  rgb_matrix::Color color(100, 100, 100);
+  TerminalSettingsModifier termialSettings;
 
-  tetris_engine::ClearGameboard();
-	
-  tetris_engine::InitializeTetriminoQueue();
-  tetris_engine::NextTetrimino();
+  GameLoop(*matrix);
 
-  while (!interrupted){
-    TerminalGameboard();
-    if (!tetris_engine::MoveActiveDown()){
-      //Generate a new Active tetrimino.
-      tetris_engine::NextTetrimino();
-    }
-    DisplayGameboard(matrix.get(), tetris_engine::gameboard);
-    sleep(1);   
-  }
-
-  matrix->Clear();
+  std::cout << "Engine Thread exited" << std::endl;
 
   return 0;
 }
+
