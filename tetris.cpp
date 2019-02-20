@@ -110,10 +110,18 @@ TetriminoShapes tetris_engine::GetShapeAt(Coord position){
   }
 }
 
-void tetris_engine::NextTetrimino(){
-  active_tetrimino = tetrimino_queue.front();
+bool tetris_engine::NextTetrimino(){
+  Tetrimino next_tetrimino = tetrimino_queue.front();
   tetrimino_queue.pop();
   tetrimino_queue.push(GenerateNewTetrimino());
+
+  if (IsObstructed(next_tetrimino)) {
+   return false; 
+  } else {
+    active_tetrimino = next_tetrimino;
+    tetris_engine::SetCells(active_tetrimino, active_tetrimino.type);
+    return true;
+  }
 }
 
 Tetrimino tetris_engine::GenerateNewTetrimino(){
@@ -148,6 +156,7 @@ void tetris_engine::ClearAndShift(int row) {
 }
 
 void tetris_engine::ClearFullRows() {
+  int rowsCleared = 0; //Number o
   for (int i = 0; i < kGameboardHeight; ++i) {
     if (IsRowComplete(i)) {
       std::cout << "row " << i << " complete" << std::endl;

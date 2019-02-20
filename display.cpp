@@ -77,7 +77,10 @@ void GameLoop(rgb_matrix::RGBMatrix &matrix) {
     if (currentTickTime - lastTickTime >= interval) {
       if (!tetris_engine::MoveActiveDown()){
         tetris_engine::ClearFullRows(); 
-        tetris_engine::NextTetrimino();
+        if (!tetris_engine::NextTetrimino()) {
+          // Game Over;
+          std::cout << "Game Over" << std::endl;
+        }
       }
       lastTickTime = currentTickTime;
     }

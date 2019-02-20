@@ -118,7 +118,8 @@ namespace tetris_engine {
 
   // Sets the active tetrimino to the next in the Queue and generates 
   // a new terimino to go at the end of the queue.
-  void NextTetrimino();
+  // Returns False if the next tetrimino would be obstructed.
+  bool NextTetrimino();
 
   // Generates a new random tetrimino at the default start location in state 0
   Tetrimino GenerateNewTetrimino();
