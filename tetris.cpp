@@ -130,3 +130,28 @@ void tetris_engine::InitializeTetriminoQueue(){
   } 
 }
 
+bool tetris_engine::IsRowComplete(int row){
+  for (auto cell : gameboard[row]) {
+    if (cell == TetriminoShapes::EMPTY) {
+      return false;
+    } 
+  }
+  return true;
+}
+
+void tetris_engine::ClearAndShift(int row) {
+  for (int i = row; i > 0; --i) {
+    for (int j = 0; j < kGameboardWidth; ++j) { 
+      gameboard[i][j] = (gameboard[i-1][j] != TetriminoShapes::OUT_OF_BOUNDS) ? gameboard[i-1][j] : TetriminoShapes::EMPTY;
+    } 
+  }
+}
+
+void tetris_engine::ClearFullRows() {
+  for (int i = 0; i < kGameboardHeight; ++i) {
+    if (IsRowComplete(i)) {
+      std::cout << "row " << i << " complete" << std::endl;
+      ClearAndShift(i);
+    }
+  }
+}

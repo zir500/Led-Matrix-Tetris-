@@ -28,13 +28,13 @@ namespace tetris_engine {
   // PROT() Protects the commas in array literals (Otherwise the CPP treats them as argument seperators)
 #define PROT(...) __VA_ARGS__ 
 #define TETRIMINOS_DEF \
-    TETRIMINO_DEF(I, PROT({8, 9, 10, 11}),PROT({1, 5, 9, 13}), PROT({4, 5, 6, 7}),  PROT({2, 6, 10, 14}), PROT({85, 22, 255})), \
-    TETRIMINO_DEF(O, PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}),  PROT({255, 255, 0})), \
-    TETRIMINO_DEF(T, PROT({1, 4, 5, 6}),  PROT({1, 5, 6, 9}),  PROT({4, 5, 6, 9}),  PROT({1, 4, 5, 9}),   PROT({140, 0, 255})), \
-    TETRIMINO_DEF(S, PROT({1, 2, 4, 5}),  PROT({1, 5, 6, 10}), PROT({5, 6, 8, 9}),  PROT({0, 4, 5, 9}),   PROT({0, 160, 255})), \
-    TETRIMINO_DEF(Z, PROT({0, 1, 5, 6}),  PROT({2, 5, 6, 9}),  PROT({4, 5, 9, 10}), PROT({1, 4, 5, 8}),   PROT({255, 0, 0})), \
-    TETRIMINO_DEF(J, PROT({0, 4, 5, 6}),  PROT({1, 2, 5, 9}),  PROT({4, 5, 6, 10}), PROT({1, 5, 8, 9}),   PROT({0, 0, 255})), \
-    TETRIMINO_DEF(L, PROT({2, 4, 5, 6}),  PROT({1, 5, 9, 10}), PROT({4, 5, 6, 8}),  PROT({0, 1, 5, 9}),   PROT({255, 128, 0}))
+    TETRIMINO_DEF(I, PROT({8, 9, 10, 11}),PROT({1, 5, 9, 13}), PROT({4, 5, 6, 7}),  PROT({2, 6, 10, 14}), PROT({255, 0, 0})), \
+    TETRIMINO_DEF(O, PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}), PROT({5, 6, 9, 10}),  PROT({0, 0, 255})), \
+    TETRIMINO_DEF(T, PROT({1, 4, 5, 6}),  PROT({1, 5, 6, 9}),  PROT({4, 5, 6, 9}),  PROT({1, 4, 5, 9}),   PROT({255, 127, 0})), \
+    TETRIMINO_DEF(S, PROT({1, 2, 4, 5}),  PROT({1, 5, 6, 10}), PROT({5, 6, 8, 9}),  PROT({0, 4, 5, 9}),   PROT({0, 255, 0})), \
+    TETRIMINO_DEF(Z, PROT({0, 1, 5, 6}),  PROT({2, 5, 6, 9}),  PROT({4, 5, 9, 10}), PROT({1, 4, 5, 8}),   PROT({0, 127, 255})), \
+    TETRIMINO_DEF(J, PROT({0, 4, 5, 6}),  PROT({1, 2, 5, 9}),  PROT({4, 5, 6, 10}), PROT({1, 5, 8, 9}),   PROT({255, 255, 255})), \
+    TETRIMINO_DEF(L, PROT({2, 4, 5, 6}),  PROT({1, 5, 9, 10}), PROT({4, 5, 6, 8}),  PROT({0, 1, 5, 9}),   PROT({255, 0, 255}))
 
 #define TETRIMINO_DEF(identifier, state0, state1, state2, state3, color) identifier
   enum TetriminoShapes {TETRIMINOS_DEF, EMPTY, OUT_OF_BOUNDS};
@@ -47,7 +47,7 @@ namespace tetris_engine {
 #undef TETRIMINO_DEF
 
 #define TETRIMINO_DEF(identifier, s0, s1, s2, s3, color) {color}
-  static const std::array<std::array<int, 3>, 9> kTetriminoColors = {{TETRIMINOS_DEF, {{0, 255, 0}}, {{255,255,255}}}};
+  static const std::array<std::array<int, 3>, 9> kTetriminoColors = {{TETRIMINOS_DEF, {{0, 0, 0}}, {{255,255,255}}}};
 #undef TETRIMINO_DEF
 #undef TETRIMINOS_DEF
 #undef PROT
@@ -128,6 +128,15 @@ namespace tetris_engine {
 
   // Runs the tetris game, moves tiles down, generates new tetrminio's when needed etc...
   void TetrisThread();
+
+  // Checks whether the ith row from the bottom is completely filled (No gaps)
+  bool IsRowComplete(int row);
+
+  // Clears ith row from bottom and shifts the rest of the gameboard above it down.
+  void ClearAndShift(int row);
+
+  // Clears all full rows on the board.
+  void ClearFullRows();
 
 }
 

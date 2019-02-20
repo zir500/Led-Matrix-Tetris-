@@ -12,12 +12,19 @@ static void InterruptHandler(int signo){
   interrupted = true;
 }
 
+void SetScaledPixels(rgb_matrix::RGBMatrix &matrix, int scale, int column, int row, std::array<int, 3> color) {
+  for (int i = 0; i < scale; ++i) {
+    for (int j = 0; j < scale; ++j) {
+      matrix.SetPixel(column*scale+i, row*scale+j, color[0], color[1], color[2]);
+    }
+  }
+}
 
 void display::DisplayGameboard(rgb_matrix::RGBMatrix* matrix, const GameBoard gameboard){
   for (int row=0; row < gameboard.size(); row++) {
     for (int column = 0; column < gameboard[row].size(); column++) {
       std::array<int, 3> color = tetris_engine::kTetriminoColors[tetris_engine::GetShapeAt({column, row})];
-      matrix->SetPixel(column, row, color[0], color[1], color[2]); 
+        SetScaledPixels(*matrix, 3, column, row, color);
     }
   }
 }
@@ -50,7 +57,6 @@ void InputHandlerThread() {
   while (!stopInputHandler) {
     char key = getchar();
     inputQueue.try_enqueue(key);
-    std::cout << key << std::endl;
   }
 }
 
@@ -70,6 +76,7 @@ void GameLoop(rgb_matrix::RGBMatrix &matrix) {
     
     if (currentTickTime - lastTickTime >= interval) {
       if (!tetris_engine::MoveActiveDown()){
+        tetris_engine::ClearFullRows(); 
         tetris_engine::NextTetrimino();
       }
       lastTickTime = currentTickTime;
@@ -101,11 +108,12 @@ void GameLoop(rgb_matrix::RGBMatrix &matrix) {
       }
     }
     
+
     DisplayGameboard(&matrix, tetris_engine::gameboard);
   } 
 
   stopInputHandler = true; 
-  ungetc('q', STDIN_FILENO); //Bodge to allow InputHanlder thread to exit (getchar blocks)
+  std::cout << "Press any key to quit" << std::endl; //Bodge to allow InputHanlder thread to exit (getchar blocks)
   inputThread.join();
 }
 
